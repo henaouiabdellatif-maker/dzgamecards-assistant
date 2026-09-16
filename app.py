@@ -53,7 +53,7 @@ st.markdown("""
     .quota-warning {
         background-color: rgba(234, 179, 8, 0.15);
         border: 1px solid #eab308;
-        padding: 10px;
+        padding: 12px;
         border-radius: 10px;
         color: #facc15;
         font-size: 14px;
@@ -81,7 +81,6 @@ with st.sidebar:
         
     st.divider()
     
-    # اختيار المجال والاهتمام ليخدم أي شخص (طباخ، تاجر، مبرمج، طالب...)
     user_role = st.selectbox(
         "🎯 اختر تخصصك أو مجالك الحالي:",
         [
@@ -141,7 +140,6 @@ else:
                 }
             ]
 
-        # تنظيف الذاكرة ومنع أي تكرار غير مقصود
         for msg in st.session_state.messages:
             with st.chat_message(msg["role"]):
                 st.markdown(msg["content"])
@@ -170,11 +168,11 @@ else:
                 except Exception as e:
                     err_str = str(e)
                     if "429" in err_str:
-                        st.markdown("<div class='quota-warning'>⚠️ <b>تنبيه الحد الأقصى:</b> اقتربنا من الحد الأقصى للطلبات المجانية (5 طلبات/دقيقة). يرجى الانتظار 20 ثانية لتجنب انقطاع المهمة.</div>", unsafe_allow_html=True)
+                        st.markdown("<div class='quota-warning'>⚠️ <b>تنبيه الحد الأقصى:</b> اقتربنا من الحد الأقصى للطلبات (5 طلبات/دقيقة). يرجى الانتظار 20 ثانية.</div>", unsafe_allow_html=True)
                     elif "503" in err_str:
-                        st.warning("⏳ خوادم جوجل تشهد ضغطاً مؤقتاً (503). حاول مرة أخرى بعد ثوانٍ.")
+                        st.markdown("<div class='quota-warning'>⏳ <b>ضغط مؤقت في خوادم جوجل (503):</b> الخوادم مشغولة حالياً، يرجى المحاولة بعد ثوانٍ قليلة.</div>", unsafe_allow_html=True)
                     else:
-                        st.error(f"خطأ في المعالجة: {e}")
+                        st.error(f"خطأ: {e}")
 
         if user_input:
             st.session_state.messages.append({"role": "user", "content": user_input})
@@ -199,9 +197,9 @@ else:
                     except Exception as e:
                         err_str = str(e)
                         if "429" in err_str:
-                            st.markdown("<div class='quota-warning'>⚠️ <b>تنبيه الحد الأقصى (Quota Warning):</b> النظام يقترب من حد الاستخدام المجاني المسموح في الدقيقة. انتظر قليلاً ثم أرسل مجدداً.</div>", unsafe_allow_html=True)
+                            st.markdown("<div class='quota-warning'>⚠️ <b>تنبيه الحد الأقصى (Quota Warning):</b> النظام يقترب من حد الاستخدام المجاني المسموح. انتظر قليلاً ثم أرسل مجدداً.</div>", unsafe_allow_html=True)
                         elif "503" in err_str:
-                            st.warning("⏳ ضغط مؤقت في الخوادم (503). اضغط أرسل مرة أخرى بعد قليل.")
+                            st.markdown("<div class='quota-warning'>⏳ <b>ضغط مؤقت في خوادم جوجل (503):</b> الخوادم تشهد ضغطاً عالياً حالياً. اضغط أرسل مرة أخرى بعد قليل.</div>", unsafe_allow_html=True)
                         else:
                             st.error(f"خطأ: {e}")
 
@@ -234,7 +232,9 @@ else:
                     except Exception as e:
                         err_str = str(e)
                         if "429" in err_str:
-                            st.markdown("<div class='quota-warning'>⚠️ <b>تنبيه الحد الأقصى:</b> تم الوصول للحد المؤقت لتوليد الصور. انتظر قليلاً وجرب مرة أخرى.</div>", unsafe_allow_html=True)
+                            st.markdown("<div class='quota-warning'>⚠️ <b>تنبيه الحد الأقصى:</b> تم الوصول للحد المؤقت لتوليد الصور. انتظر قليلاً.</div>", unsafe_allow_html=True)
+                        elif "503" in err_str:
+                            st.markdown("<div class='quota-warning'>⏳ <b>ضغط مؤقت (503):</b> خوادم توليد الصور مشغولة حالياً، جرب بعد ثوانٍ.</div>", unsafe_allow_html=True)
                         else:
                             st.error(f"خطأ: {e}")
             else:
@@ -256,7 +256,6 @@ else:
                             prompt = f"اكتب محتوى تفصيلي، منظم، واحترافي لملف وورد بناءً على هذا الطلب: '{file_topic}'. اجعل النصوص منسقة في فقرات وعناوين واضحة."
                             res = client.models.generate_content(model=MODEL_NAME, contents=prompt, config=types.GenerateContentConfig(system_instruction=system_prompt))
                             
-                            # إنشاء ملف الوورد حقيقة
                             doc = docx.Document()
                             doc.add_heading("DZGAMECARDS - AI Generated Document", 0)
                             for line in res.text.split("\n"):
@@ -277,11 +276,9 @@ else:
                                 mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                             )
                         else:
-                            # توليد جدول إكسل
-                            prompt = f"قم بإنشاء جدول بيانات منظم ومناسب للإكسل بناءً على الطلب: '{file_topic}'. اعطني البيانات على شكل أعمدة وصفوف مفصولة بفواصل (CSV) أو بيانات جدولية واضحة يمكن تحويلها لجدول."
+                            prompt = f"قم بإنشاء جدول بيانات منظم ومناسب للإكسل بناءً على الطلب: '{file_topic}'. اعطني البيانات على شكل أعمدة وصفوف مفصولة بفواصل أو بيانات جدولية واضحة."
                             res = client.models.generate_content(model=MODEL_NAME, contents=prompt, config=types.GenerateContentConfig(system_instruction=system_prompt))
                             
-                            # محاكاة بيانات وإلصاقها في داتا فريم
                             data = {"البيانات والمحتوى المولد": [res.text]}
                             df = pd.DataFrame(data)
                             
@@ -301,6 +298,8 @@ else:
                         err_str = str(e)
                         if "429" in err_str:
                             st.markdown("<div class='quota-warning'>⚠️ <b>تنبيه الحد الأقصى:</b> تم بلوغ الحد المؤقت للطلبات. انتظر قليلاً.</div>", unsafe_allow_html=True)
+                        elif "503" in err_str:
+                            st.markdown("<div class='quota-warning'>⏳ <b>ضغط مؤقت في الخوادم (503):</b> خوادم جوجل تشهد ضغطاً حالياً أثناء إنشاء الملف. يرجى إعادة المحاولة بعد ثوانٍ.</div>", unsafe_allow_html=True)
                         else:
                             st.error(f"حدث خطأ أثناء إنشاء الملف: {e}")
             else:
@@ -322,7 +321,11 @@ else:
                             st.success("الرد الجاهز:")
                             st.markdown(res.text)
                         except Exception as e:
-                            st.warning(f"تنبيه مؤقت: {e}")
+                            err_str = str(e)
+                            if "503" in err_str:
+                                st.markdown("<div class='quota-warning'>⏳ ضغط مؤقت في الخوادم (503). جرب مرة أخرى بعد قليل.</div>", unsafe_allow_html=True)
+                            else:
+                                st.warning(f"تنبيه مؤقت: {e}")
                 else:
                     st.warning("أدخل رسالة الزبون.")
         else:
@@ -335,4 +338,8 @@ else:
                         st.success("البروموت المهندس:")
                         st.markdown(res.text)
                     except Exception as e:
-                        st.warning(f"تنبيه مؤقت: {e}")
+                        err_str = str(e)
+                        if "503" in err_str:
+                            st.markdown("<div class='quota-warning'>⏳ ضغط مؤقت في الخوادم (503). جرب مرة أخرى بعد قليل.</div>", unsafe_allow_html=True)
+                        else:
+                            st.warning(f"تنبيه مؤقت: {e}")

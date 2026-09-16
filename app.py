@@ -3,116 +3,188 @@ from google import genai
 from google.genai import types
 
 st.set_page_config(
-    page_title="DZGAMECARDS Pro Assistant",
-    page_icon="💎",
+    page_title="DZGAMECARDS Pro Studio",
+    page_icon="🚀",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# تخصيص التصميم ليصبح عصرياً وأنيقاً
+# تصميم عصري واحترافي مستوحى من أفضل منصات الويب
 st.markdown("""
 <style>
     .main {
-        background-color: #0e1117;
-        color: #ffffff;
+        background-color: #0b0f19;
+        color: #f3f4f6;
     }
-    .stChatMessage {
-        border-radius: 12px;
-        padding: 12px;
-        margin-bottom: 10px;
+    .stButton>button {
+        background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);
+        color: white;
+        border-radius: 10px;
+        border: none;
+        padding: 10px 20px;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+    .stButton>button:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+    }
+    div.stSelectbox, div.stTextInput, div.stTextArea {
+        background-color: #1f2937;
+        border-radius: 10px;
     }
 </style>
 """, unsafe_allow_html=True)
 
-st.title("💎 DZGAMECARDS Pro AI Assistant")
-st.markdown("مساعدك الذكي والمحترف لإدارة المتجر، هندسة البروموتات المتقدمة لـ OmniFlash، وإدارة السوشيال ميديا بحرية تامة.")
-
-# جلب المفتاح تلقائياً من الإعدادات أو الشريط الجانبي
-api_key = ""
-try:
-    api_key = st.secrets.get("GEMINI_API_KEY", "")
-except Exception:
-    pass
-
+# الشريط الجانبي للإعدادات والتنقل
 with st.sidebar:
-    st.header("⚙️ إعدادات المساعد")
+    st.image("https://img.icons8.com/clouds/200/controller.png", width=100)
+    st.title("DZGAMECARDS 🚀")
+    st.markdown("إدارة المتجر، الرد على العملاء، وهندسة البروموتات المتقدمة.")
+    st.divider()
+    
+    # جلب مفتاح الـ API تلقائياً أو من المستخدم
+    api_key = ""
+    try:
+        api_key = st.secrets.get("GEMINI_API_KEY", "")
+    except Exception:
+        pass
+
     if not api_key:
         api_key = st.text_input("أدخل مفتاح Gemini API Key:", type="password")
     else:
-        st.success("تم تحميل مفتاح الـ API بنجاح 🔒")
+        st.success("المفتاح محمّل تلقائياً 🔒")
+        
+    st.divider()
+    app_mode = st.radio(
+        "اختر الأداة المطلوبة:",
+        [
+            "💬 الدردشة والمساعد الصوتي",
+            "🤝 الرد الاحترافي على الزبائن",
+            "⚡ مصنع بروموتات OmniFlash"
+        ]
+    )
     
     st.divider()
-    st.markdown("### 💡 ماذا يمكنك أن تطلب منه؟")
-    st.markdown("- *\"اصنع لي منشور فيسبوك لبطاقات جوجل بلاي بسعر 20$\"*")
-    st.markdown("- *\"أريد بروموت لـ OmniFlash لتوليد أفكار إعلانية للمتجر\"*")
-    st.markdown("- *\"اقترح علي استراتيجية لزيادة المبيعات هذا الأسبوع\"*")
-    
-    if st.button("🗑️ مسح محادثة الدردشة"):
+    if st.button("🗑️ مسح سجل المحادثات"):
         st.session_state.messages = []
         st.rerun()
 
 if not api_key:
-    st.warning("الرجاء إدخال مفتاح Gemini API Key في الشريط الجانبي للبدء.")
+    st.warning("⚠️ الرجاء إدخال مفتاح Gemini API Key في الشريط الجانبي للبدء.")
 else:
     client = genai.Client(api_key=api_key)
 
-    # تهيئة سجل المحادثة
-    if "messages" not in st.session_state:
-        st.session_state.messages = [
-            {
-                "role": "model", 
-                "content": "مرحباً بك يا صاحبي! أنا مساعدك الذكي والمحترف لمتجر **DZGAMECARDS**. أنا هنا لأكتب معك المنشورات، أصمم لك البروموتات المتقدمة لـ OmniFlash، وأساعدك في إدارة صفحتك باحترافية. عما تتحدث اليوم؟"
-            }
-        ]
+    # ================= 1. قسم الدردشة والمساعد الصوتي =================
+    if app_mode == "💬 الدردشة والمساعد الصوتي":
+        st.header("💬 المحادثة الذكية والمساعد الصوتي لمتجرك")
+        st.markdown("تحدث بحرية، اكتب أفكارك، أو استخدم **الميكروفون** لتسجيل رسالتك صوتياً وسيجيبك الذكاء الاصطناعي باحترافية.")
 
-    # عرض سجل المحادثة
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            st.markdown(message["content"])
+        if "messages" not in st.session_state:
+            st.session_state.messages = [
+                {
+                    "role": "model", 
+                    "content": "أهلاً بك يا صاحبي في الاستوديو الاحترافي لـ DZGAMECARDS. كيف أساعدك اليوم في تطوير متجرك أو إدارة صفحاتك؟"
+                }
+            ]
 
-    # نافذة إدخال الرسائل الحرة من المستخدم
-    if user_prompt := st.chat_input("اكتب طلبك هنا (مثلاً: أريد بروموت لـ OmniFlash عن بطاقات فري فاير بسعر 10$...):"):
-        # إضافة رسالة المستخدم للسجل
-        st.session_state.messages.append({"role": "user", "content": user_prompt})
-        with st.chat_message("user"):
-            st.markdown(user_prompt)
+        # عرض الرسائل السابقة
+        for msg in st.session_state.messages:
+            with st.chat_message(msg["role"]):
+                st.markdown(msg["content"])
 
-        # توليد الرد الذكي
-        with st.chat_message("model"):
-            with st.spinner("جاري التفكير وصياغة الرد المتقدم..."):
+        # دعم الإدخال الصوتي المباشر (Voice Input) والكتابي
+        col1, col2 = st.columns([6, 1])
+        with col1:
+            user_input = st.chat_input("اكتب رسالتك أو طلبك هنا...")
+            
+        # إضافة زر تسجيل صوتي مباشر عبر المتصفح
+        st.markdown("---")
+        st.subheader("🎙️ أو سجل رسالتك صوتياً مباشرة:")
+        audio_file = st.audio_input("اضغط لتسجيل الصوت")
+
+        # معالجة الإدخال الصوتي
+        if audio_file is not None:
+            audio_bytes = audio_file.read()
+            mime_type = audio_file.type if hasattr(audio_file, 'type') else "audio/wav"
+            
+            with st.spinner("جاري الاستماع لصوتك وتحليله عبر الذكاء الاصطناعي..."):
                 try:
-                    # توجيه النظام (System Instruction) ليصبح خبيراً في متجرك
-                    system_instruction = (
-                        "أنت مساعد ذكي خبير ومحترف مخصص لمتجر رقمي يسمى 'DZGAMECARDS' يبيع البطاقات الرقمية (مثل بطاقات جوجل بلاي، نتفلكس، فري فاير، بلايستيشن، شحن الألعاب، إلخ). "
-                        "مهمتك الرئيسية هي: "
-                        "1. مساعدة المستخدم في إدارة صفحات السوشيال ميديا (فيسبوك، إنستغرام) عبر كتابة منشورات تسويقية جذابة، احترافية، مع إيموجي وهاشتاغات ودعوة للشراء. "
-                        "2. هندسة البروموتات المتقدمة والمخصصة لنماذج الذكاء الاصطناعي مثل (OmniFlash) بحيث تعطيه بروموتات دقيقة ومذهلة عند إعطائه اسم المنتج والسعر أو التفاصيل. "
-                        "3. تقديم إجابات منطقية، إبداعية، ومتقدمة جداً باللغة التي يفضلها المستخدم (العربية أو الدارجة حسب طلبه). "
-                        "كن ودوداً، احترافياً، ومرناً تماماً في الحوار المباشر."
-                    )
-
-                    # تجهيز محتوى الرسائل بالكامل للسياق
-                    formatted_contents = []
-                    for m in st.session_state.messages:
-                        role = "user" if m["role"] == "user" else "model"
-                        formatted_contents.append(
-                            types.Content(
-                                role=role,
-                                parts=[types.Part.from_text(text=m["content"])]
-                            )
-                        )
-
+                    audio_part = types.Part.from_bytes(data=audio_bytes, mime_type=mime_type)
                     response = client.models.generate_content(
                         model="gemini-3.6-flash",
-                        contents=formatted_contents,
-                        config=types.GenerateContentConfig(
-                            system_instruction=system_instruction,
-                            temperature=0.7,
-                        )
+                        contents=[audio_part, "قم بالرد على هذا التسجيل الصوتي باللغة العربية بطريقة احترافية ومفيدة لمتجر بطاقات رقمية يسمى DZGAMECARDS."]
                     )
-
-                    assistant_response = response.text
-                    st.markdown(assistant_response)
-                    st.session_state.messages.append({"role": "model", "content": assistant_response})
+                    reply = response.text
+                    st.session_state.messages.append({"role": "user", "content": "🎙️ [رسالة صوتية مرسلة]"})
+                    st.session_state.messages.append({"role": "model", "content": reply})
+                    st.rerun()
                 except Exception as e:
-                    st.error(f"حدث خطأ أثناء الاتصال بالذكاء الاصطناعي: {e}")
+                    st.error(fحدث خطأ في معالجة الصوت: {e}")
+
+        # معالجة الإدخال النصي العادي
+        if user_input:
+            st.session_state.messages.append({"role": "user", "content": user_input})
+            with st.chat_message("user"):
+                st.markdown(user_input)
+
+            with st.chat_message("model"):
+                with st.spinner("جاري صياغة الرد الاحترافي..."):
+                    try:
+                        system_inst = "أنت مساعد ذكي محترف وخبير تسويق إلكتروني لمتجر 'DZGAMECARDS' للبطاقات الرقمية. قدم إجابات منطقية، عميقة، ومتقدمة جداً."
+                        formatted_msgs = [
+                            types.Content(role="user" if m["role"] == "user" else "model", parts=[types.Part.from_text(text=m["content"])])
+                            for m in st.session_state.messages
+                        ]
+                        res = client.models.generate_content(
+                            model="gemini-3.6-flash",
+                            contents=formatted_msgs,
+                            config=types.GenerateContentConfig(system_instruction=system_inst, temperature=0.7)
+                        )
+                        reply = res.text
+                        st.markdown(reply)
+                        st.session_state.messages.append({"role": "model", "content": reply})
+                    except Exception as e:
+                        st.error(f"خطأ: {e}")
+
+    # ================= 2. قسم الرد الاحترافي على الزبائن =================
+    elif app_mode == "🤝 الرد الاحترافي على الزبائن":
+        st.header("🤝 مساعد الرد الذكي على رسائل الزبائن")
+        st.markdown("انسخ رسالة أو استفسار الزبون الذي وصلك على الصفحة، والصقه هنا ليقوم الذكاء الاصطناعي بكتابة رد تجاري، راقٍ، واحترافي يشجعه على إتمام الشراء فوراً.")
+
+        client_msg = st.text_area("أدخل رسالة الزبون هنا (مثلاً: بكم سعر بطاقات جوجل بلاي وهل توصلي كود بسرعة؟):", height=100)
+        
+        if st.button("✨ توليد رد احترافي للزبون"):
+            if client_msg.strip():
+                with st.spinner("جاري صياغة أفضل رد تسويقي للزبون..."):
+                    prompt = f"هذه رسالة وصلتنا من زبون لمتجر 'DZGAMECARDS' للبطاقات الرقمية: '{client_msg}'. اكتب لي رداً تجارياً احترافياً، ودوداً، ومحفزاً لإتمام الشراء مع تفاصيل وهمية مقنعة وسريعة."
+                    res = client.models.generate_content(model="gemini-3.6-flash", contents=prompt)
+                    st.success("الرد المقترح للزبون (جاهز للنسخ والارسال):")
+                    st.markdown(res.text)
+            else:
+                st.warning("الرجاء كتابة رسالة الزبون أولاً.")
+
+    # ================= 3. مصنع بروموتات OmniFlash =================
+    elif app_mode == "⚡ مصنع بروموتات OmniFlash":
+        st.header("⚡ مصنع بروموتات OmniFlash المتقدم")
+        st.markdown("هذا القسم مخصص لكتابة تفاصيل دقيقة، ليقوم الذكاء الاصطناعي بتوليد **بروموت احترافي متكامل** يمكنك نسخه مباشرة وإرساله لـ OmniFlash أو أي نموذج آخر للحصول على نتائج مبهرة.")
+
+        col_a, col_b = st.columns(2)
+        with col_a:
+            p_name = st.text_input("اسم المنتج أو البطاقة:", "بطاقات فري فاير 1000 الماس")
+            p_price = st.text_input("السعر أو العرض:", "1500 دج مع توصيل فوري")
+        with col_b:
+            p_goal = st.selectbox("الهدف من البروموت:", ["تصميم إعلان إبداعي لفيسبوك", "أفكار فيديو ريلز/تيك توك", "حملة خصومات ترويجية كبرى"])
+            p_tone = st.selectbox("نبرة الأسلوب المطلوبة:", ["حماسية وجذابة جداً", "رسمية واحترافية", "شبابية ومغربية/عربية دارجة"])
+
+        if st.button("🚀 توليد بروموت OmniFlash المثالي"):
+            with st.spinner("جاري هندسة البروموت الاحترافي..."):
+                engineer_prompt = (
+                    f"أريدك أن تعمل كخبير هندسة بروموتات (Prompt Engineer). قم بكتابة بروموت احترافي ومفصل جداً وموجه لنماذج (OmniFlash) "
+                    f"بحيث يطلب منها إنشاء محتوى لمتجر 'DZGAMECARDS'. "
+                    f"تفاصيل الطلب: المنتج هو '{p_name}', السعر أو العرض هو '{p_price}', الهدف هو '{p_goal}', والنبرة المطلوبة هي '{p_tone}'. "
+                    f"اكتب البروموت بوضوح وبشكل منظم بحيث يمكن للمستخدم نسخه ولصقه مباشرة في OmniFlash ليعطيه نتيجة مذهلة."
+                )
+                res = client.models.generate_content(model="gemini-3.6-flash", contents=engineer_prompt)
+                st.success("تم هندسة البروموت بنجاح! جاهز للاستخدام:")
+                st.markdown(res.text)

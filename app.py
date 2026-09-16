@@ -14,7 +14,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# تصميم خارق ومستقبلي بمستوى منصات 2050
 st.markdown("""
 <style>
     .stApp {
@@ -54,16 +53,16 @@ st.markdown("""
     .quota-warning {
         background-color: rgba(234, 179, 8, 0.15);
         border: 1px solid #eab308;
-        padding: 12px;
-        border-radius: 10px;
+        padding: 14px;
+        border-radius: 12px;
         color: #facc15;
-        font-size: 14px;
+        font-size: 15px;
         margin-bottom: 15px;
+        line-height: 1.6;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# الشريط الجانبي الفخم وإدارة المحادثات السابقة
 with st.sidebar:
     st.markdown("<h2 style='text-align: center;' class='title-glow'>👑 OMNI-AI 2050</h2>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center; color: #94a3b8; font-size: 13px;'>المنصة الأقوى عالمياً للجميع</p>", unsafe_allow_html=True)
@@ -82,7 +81,6 @@ with st.sidebar:
         
     st.divider()
     
-    # 🗂️ نظام إدارة المحادثات السابقة (رؤية + تبديل + حذف)
     st.markdown("### 🗂️ سجل المحادثات السابقة")
     
     if "sessions" not in st.session_state:
@@ -95,7 +93,6 @@ with st.sidebar:
         }
         st.session_state.active_session = init_id
 
-    # عرض قائمة المحادثات السابقة
     session_ids = list(st.session_state.sessions.keys())
     session_titles = [st.session_state.sessions[sid]["title"] for sid in session_ids]
     
@@ -111,7 +108,6 @@ with st.sidebar:
         st.session_state.active_session = selected_id
         st.rerun()
 
-    # أزرار محادثة جديدة وحذف المحادثة الحالية
     col_b1, col_b2 = st.columns(2)
     with col_b1:
         if st.button("➕ جديدة"):
@@ -155,6 +151,17 @@ with st.sidebar:
         ]
     )
 
+def handle_api_error(e):
+    err_str = str(e)
+    if "429" in err_str and "Day" in err_str:
+        st.markdown("<div class='quota-warning'>⚠️ <b>تنبيه الحد اليومي (Daily Quota Exceeded):</b> لقد وصلت إلى الحد الأقصى المسموح به لهذا المفتاح في اليوم (20 طلباً مجانياً). يرجى إنشاء مفتاح API جديد من موقع Google AI Studio ووضع في الشريط الجانبي ليعمل معك فوراً برصيد متجدد!</div>", unsafe_allow_html=True)
+    elif "429" in err_str:
+        st.markdown("<div class='quota-warning'>⚠️ <b>تنبيه الحد المؤقت:</b> تم الوصول للحد الأقصى للطلبات في الدقيقة (5 طلبات). انتظر 20 ثانية ثم أعد المحاولة.</div>", unsafe_allow_html=True)
+    elif "503" in err_str:
+        st.markdown("<div class='quota-warning'>⏳ <b>ضغط مؤقت في خوادم جوجل (503):</b> الخوادم مشغولة عالمياً حالياً، يرجى المحاولة بعد ثوانٍ قليلة.</div>", unsafe_allow_html=True)
+    else:
+        st.error(f"خطأ غير متوقع: {e}")
+
 if not api_key:
     st.warning("⚠️ الرجاء إدخال مفتاح الـ API في الشريط الجانبي لتفعيل طاقة الذكاء الاصطناعي الخارق.")
 else:
@@ -172,13 +179,12 @@ else:
     }
     system_prompt = role_prompts.get(user_role, role_prompts["عقلية Omni الشاملة ( Claude + ChatGPT + Gemini )"])
 
-    # جلب الرسائل الخاصة بالمحادثة النشطة حالياً
     active_messages = st.session_state.sessions[st.session_state.active_session]["messages"]
 
     # ================= 1. المحادثة الخارقة =================
     if app_mode == "💬 المحادثة الخارقة (صوت + كتابة + ذاكرة)":
         st.markdown("<h1 class='title-glow'>💬 المحادثة الخارقة الشاملة</h1>", unsafe_allow_html=True)
-        st.markdown("تحدث في أي موضوع، اطرح أي سؤال، أو استخدم **الميكروفون** للتحدث صوتياً وسأجيبك فوراً بدون أي تكرار وبكفاءة مطلقة.")
+        st.markdown("تحدث في أي موضوع، اطرح أي سؤال، أو استخدم **الميكروفون** للتحدث صوتياً وسأجيبك فوراً.")
 
         for msg in active_messages:
             with st.chat_message(msg["role"]):
@@ -206,13 +212,7 @@ else:
                     active_messages.append({"role": "model", "content": reply})
                     st.rerun()
                 except Exception as e:
-                    err_str = str(e)
-                    if "429" in err_str:
-                        st.markdown("<div class='quota-warning'>⚠️ <b>تنبيه الحد الأقصى:</b> اقتربنا من الحد الأقصى للطلبات (5 طلبات/دقيقة). يرجى الانتظار 20 ثانية.</div>", unsafe_allow_html=True)
-                    elif "503" in err_str:
-                        st.markdown("<div class='quota-warning'>⏳ <b>ضغط مؤقت في خوادم جوجل (503):</b> الخوادم مشغولة حالياً، يرجى المحاولة بعد ثوانٍ قليلة.</div>", unsafe_allow_html=True)
-                    else:
-                        st.error(f"خطأ: {e}")
+                    handle_api_error(e)
 
         if user_input:
             active_messages.append({"role": "user", "content": user_input})
@@ -235,13 +235,7 @@ else:
                         st.markdown(reply)
                         active_messages.append({"role": "model", "content": reply})
                     except Exception as e:
-                        err_str = str(e)
-                        if "429" in err_str:
-                            st.markdown("<div class='quota-warning'>⚠️ <b>تنبيه الحد الأقصى (Quota Warning):</b> النظام يقترب من حد الاستخدام المجاني المسموح. انتظر قليلاً ثم أرسل مجدداً.</div>", unsafe_allow_html=True)
-                        elif "503" in err_str:
-                            st.markdown("<div class='quota-warning'>⏳ <b>ضغط مؤقت في خوادم جوجل (503):</b> الخوادم تشهد ضغطاً عالياً حالياً. اضغط أرسل مرة أخرى بعد قليل.</div>", unsafe_allow_html=True)
-                        else:
-                            st.error(f"خطأ: {e}")
+                        handle_api_error(e)
 
     # ================= 2. استوديو الصور (Imagen 3) =================
     elif app_mode == "🎨 استوديو خلق الصور الإعلانية (Imagen 3)":
@@ -270,13 +264,7 @@ else:
                             image = Image.open(BytesIO(generated_image.image.image_bytes))
                             st.image(image, caption="التصميم المولد بالذكاء الاصطناعي", use_container_width=True)
                     except Exception as e:
-                        err_str = str(e)
-                        if "429" in err_str:
-                            st.markdown("<div class='quota-warning'>⚠️ <b>تنبيه الحد الأقصى:</b> تم الوصول للحد المؤقت لتوليد الصور. انتظر قليلاً.</div>", unsafe_allow_html=True)
-                        elif "503" in err_str:
-                            st.markdown("<div class='quota-warning'>⏳ <b>ضغط مؤقت (503):</b> خوادم توليد الصور مشغولة حالياً، جرب بعد ثوانٍ.</div>", unsafe_allow_html=True)
-                        else:
-                            st.error(f"خطأ: {e}")
+                        handle_api_error(e)
             else:
                 st.warning("الرجاء كتابة وصف الصورة أولاً.")
 
@@ -335,13 +323,7 @@ else:
                                 mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                             )
                     except Exception as e:
-                        err_str = str(e)
-                        if "429" in err_str:
-                            st.markdown("<div class='quota-warning'>⚠️ <b>تنبيه الحد الأقصى:</b> تم بلوغ الحد المؤقت للطلبات. انتظر قليلاً.</div>", unsafe_allow_html=True)
-                        elif "503" in err_str:
-                            st.markdown("<div class='quota-warning'>⏳ <b>ضغط مؤقت في الخوادم (503):</b> خوادم جوجل تشهد ضغطاً حالياً أثناء إنشاء الملف. يرجى إعادة المحاولة بعد ثوانٍ.</div>", unsafe_allow_html=True)
-                        else:
-                            st.error(f"حدث خطأ أثناء إنشاء الملف: {e}")
+                        handle_api_error(e)
             else:
                 st.warning("الرجاء كتابة تفاصيل الملف أولاً.")
 
@@ -361,11 +343,7 @@ else:
                             st.success("الرد الجاهز:")
                             st.markdown(res.text)
                         except Exception as e:
-                            err_str = str(e)
-                            if "503" in err_str:
-                                st.markdown("<div class='quota-warning'>⏳ ضغط مؤقت في الخوادم (503). جرب مرة أخرى بعد قليل.</div>", unsafe_allow_html=True)
-                            else:
-                                st.warning(f"تنبيه مؤقت: {e}")
+                            handle_api_error(e)
                 else:
                     st.warning("أدخل رسالة الزبون.")
         else:
@@ -378,8 +356,4 @@ else:
                         st.success("البروموت المهندس:")
                         st.markdown(res.text)
                     except Exception as e:
-                        err_str = str(e)
-                        if "503" in err_str:
-                            st.markdown("<div class='quota-warning'>⏳ ضغط مؤقت في الخوادم (503). جرب مرة أخرى بعد قليل.</div>", unsafe_allow_html=True)
-                        else:
-                            st.warning(f"تنبيه مؤقت: {e}")
+                        handle_api_error(e)

@@ -1,5 +1,5 @@
 import streamlit as st
-import google.generativeai as genai
+from google import genai
 
 st.set_page_config(page_title="DZGAMECARDS AI Assistant", page_icon="⚡", layout="centered")
 
@@ -15,7 +15,6 @@ except Exception:
 
 st.sidebar.header("إعدادات الذكاء الاصطناعي")
 
-# إذا لم يكن مخفياً في الإعدادات، يظهر خانه الإدخال
 if not api_key:
     api_key = st.sidebar.text_input("أدخل مفتاح Gemini API Key:", type="password")
 else:
@@ -33,8 +32,7 @@ if st.button("توليد المحتوى بالذكاء الاصطناعي"):
         st.error("الرجاء إدخال مفتاح Gemini API Key أولاً!")
     else:
         try:
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel("gemini-1.5-flash")
+            client = genai.Client(api_key=api_key)
             
             with st.spinner("جاري التفكير وتوليد المحتوى لمتجرك..."):
                 if option == "إنشاء منشور ترويجي ذكي":
@@ -44,7 +42,10 @@ if st.button("توليد المحتوى بالذكاء الاصطناعي"):
                 else:
                     prompt = f"اعطني 3 أفكار مبتكرة لفيديوهات قصيرة (Reels/TikTok) لمتجر DZGAMECARDS للترويج لـ '{product_name}' مع نص الفيديو والتعليق الصوتي."
 
-                response = model.generate_content(prompt)
+                response = client.models.generate_content(
+                    model="gemini-2.5-flash",
+                    contents=prompt,
+                )
                 st.success("تم توليد المحتوى بنجاح:")
                 st.markdown(response.text)
         except Exception as e:

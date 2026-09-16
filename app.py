@@ -42,8 +42,9 @@ if st.button("توليد المحتوى بالذكاء الاصطناعي"):
                 else:
                     prompt = f"اعطني 3 أفكار مبتكرة لفيديوهات قصيرة (Reels/TikTok) لمتجر DZGAMECARDS للترويج لـ '{product_name}' مع نص الفيديو والتعليق الصوتي."
 
+                # تم التحديث إلى النموذج الجديد المطلوب
                 response = client.models.generate_content(
-                    model="gemini-2.5-flash",
+                    model="gemini-3.6-flash",
                     contents=prompt,
                 )
                 st.success("تم توليد المحتوى بنجاح:")

@@ -78,8 +78,8 @@ if not api_key:
     st.warning("⚠️ الرجاء إدخال مفتاح الـ API الخاص بك في الشريط الجانبي للبدء.")
 else:
     client = genai.Client(api_key=api_key)
-    # استخدام النموذج الأكثر استقراراً وسرعة لتجنب أخطاء الضغط
-    STABLE_MODEL = "gemini-2.5-flash"
+    # النموذج المطلوب والمدعوم رسمياً من جوجل حالياً
+    MODEL_NAME = "gemini-3.6-flash"
 
     # ================= 1. المحادثة الشاملة =================
     if app_mode == "💬 المحادثة الشاملة والمساعد الصوتي":
@@ -112,7 +112,7 @@ else:
                 try:
                     audio_part = types.Part.from_bytes(data=audio_bytes, mime_type=mime_type)
                     response = client.models.generate_content(
-                        model=STABLE_MODEL,
+                        model=MODEL_NAME,
                         contents=[audio_part, "أجب على هذا التسجيل الصوتي باللغة العربية بطريقة احترافية لمتجر بطاقات رقمية DZGAMECARDS."]
                     )
                     reply = response.text
@@ -120,10 +120,11 @@ else:
                     st.session_state.messages.append({"role": "model", "content": reply})
                     st.rerun()
                 except Exception as e:
-                    if "503" in str(e):
+                    err_str = str(e)
+                    if "503" in err_str:
                         st.warning("⏳ خوادم جوجل تشهد ضغطاً مؤقتاً (503). يرجى المحاولة بعد ثوانٍ قليلة.")
-                    elif "429" in str(e):
-                        st.warning("⏳ تم الوصول للحد المؤقت للطلبات. انتظر قليلاً وجرب مرة أخرى.")
+                    elif "429" in err_str:
+                        st.warning("⏳ تم الوصول للحد المؤقت للطلبات (5 طلبات/دقيقة). انتظر قليلاً وجرب مرة أخرى.")
                     else:
                         st.error(f"خطأ في المعالجة الصوتية: {e}")
 
@@ -141,7 +142,7 @@ else:
                             for m in st.session_state.messages
                         ]
                         res = client.models.generate_content(
-                            model=STABLE_MODEL,
+                            model=MODEL_NAME,
                             contents=formatted_msgs,
                             config=types.GenerateContentConfig(system_instruction=system_inst, temperature=0.7)
                         )
@@ -149,10 +150,11 @@ else:
                         st.markdown(reply)
                         st.session_state.messages.append({"role": "model", "content": reply})
                     except Exception as e:
-                        if "503" in str(e):
-                            st.warning("⏳ خوادم جوجل تشهد ضغطاً مؤقتاً (503). يرجى المحاولة بعد قليل.")
-                        elif "429" in str(e):
-                            st.warning("⏳ تم الوصول للحد المؤقت للطلبات. انتظر قليلاً.")
+                        err_str = str(e)
+                        if "503" in err_str:
+                            st.warning("⏳ خوادم جوجل تشهد ضغطاً مؤقتاً (503). يرجى الضغط مرة أخرى بعد قليل.")
+                        elif "429" in err_str:
+                            st.warning("⏳ تم الوصول للحد المؤقت للطلبات. انتظر قليلاً ثم أعد المحاولة.")
                         else:
                             st.error(f"خطأ: {e}")
 
@@ -189,8 +191,9 @@ else:
                             image = Image.open(BytesIO(generated_image.image.image_bytes))
                             st.image(image, caption="الصورة الإعلانية لمتجر DZGAMECARDS", use_container_width=True)
                     except Exception as e:
-                        if "503" in str(e):
-                            st.warning("⏳ خوادم توليد الصور مشغولة مؤقتاً (503). انتظر دقيقة وجرب مجدداً.")
+                        err_str = str(e)
+                        if "503" in err_str:
+                            st.warning("⏳ خوادم توليد الصور تشهد ضغطاً مؤقتاً (503). انتظر دقيقة وجرب مجدداً.")
                         else:
                             st.error(f"خطأ في توليد الصورة: {e}")
             else:
@@ -208,11 +211,11 @@ else:
                     with st.spinner("جاري صياغة الرد..."):
                         try:
                             p = f"اكتب رداً تجارياً احترافياً ومقنعاً لرسالة زبون على صفحة متجر 'DZGAMECARDS': '{cust_msg}'."
-                            res = client.models.generate_content(model=STABLE_MODEL, contents=p)
+                            res = client.models.generate_content(model=MODEL_NAME, contents=p)
                             st.success("الرد الجاهز للنسخ:")
                             st.markdown(res.text)
                         except Exception as e:
-                            st.warning("⏳ خوادم جوجل مشغولة مؤقتاً، جرب مرة أخرى بعد قليل.")
+                            st.warning("⏳ خوادم جوجل تشهد ضغطاً مؤقتاً، يرجى المحاولة بعد قليل.")
                 else:
                     st.warning("الرجاء إدخال رسالة الزبون.")
         else:
@@ -222,8 +225,8 @@ else:
                 with st.spinner("جاري هندسة البروموت..."):
                     try:
                         p = f"اكتب بروموت مفصل وموجه لنماذج الذكاء الاصطناعي لمتجر 'DZGAMECARDS'. المنتج: {p_name}, التفاصيل: {p_details}."
-                        res = client.models.generate_content(model=STABLE_MODEL, contents=p)
+                        res = client.models.generate_content(model=MODEL_NAME, contents=p)
                         st.success("البروموت المهندس جاهز:")
                         st.markdown(res.text)
                     except Exception as e:
-                        st.warning("⏳ خوادم جوجل مشغولة مؤقتاً، جرب مرة أخرى بعد قليل.")
+                        st.warning("⏳ خوادم جوجل تشهد ضغطاً مؤقتاً، يرجى المحاولة بعد قليل.")

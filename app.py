@@ -6,9 +6,20 @@ st.set_page_config(page_title="DZGAMECARDS AI Assistant", page_icon="⚡", layou
 st.title("⚡ DZGAMECARDS AI Assistant")
 st.markdown("مساعدك الذكي المتقدم لإدارة متجرك وتوليد المحتوى الحقيقي بالذكاء الاصطناعي.")
 
-# الشريط الجانبي لإدخال المفتاح والخدمات
+# محاولة جلب المفتاح تلقائياً من الإعدادات السرية للمنصة
+api_key = ""
+try:
+    api_key = st.secrets.get("GEMINI_API_KEY", "")
+except Exception:
+    pass
+
 st.sidebar.header("إعدادات الذكاء الاصطناعي")
-api_key = st.sidebar.text_input("أدخل مفتاح Gemini API Key:", type="password")
+
+# إذا لم يكن مخفياً في الإعدادات، يظهر خانه الإدخال
+if not api_key:
+    api_key = st.sidebar.text_input("أدخل مفتاح Gemini API Key:", type="password")
+else:
+    st.sidebar.success("تم تحميل مفتاح الـ API تلقائياً بنجاح! 🔒")
 
 option = st.sidebar.selectbox(
     "اختر الخدمة:",
@@ -19,11 +30,10 @@ product_name = st.text_input("اسم المنتج أو البطاقة (مثلا�
 
 if st.button("توليد المحتوى بالذكاء الاصطناعي"):
     if not api_key:
-        st.error("الرجاء إدخال مفتاح Gemini API Key في الشريط الجانبي أولاً!")
+        st.error("الرجاء إدخال مفتاح Gemini API Key أولاً!")
     else:
         try:
             genai.configure(api_key=api_key)
-            # تم تحديث اسم النموذج ليتوافق تماماً مع النظام
             model = genai.GenerativeModel("gemini-1.5-flash")
             
             with st.spinner("جاري التفكير وتوليد المحتوى لمتجرك..."):

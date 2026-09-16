@@ -77,7 +77,7 @@ with st.sidebar:
         
     st.divider()
     
-    # اختيار شخصية وتخصص الذكاء الاصطناعي (ليخدم أي شخص: طباخ، تاجر، مبرمج، إلخ)
+    # اختيار شخصية وتخصص الذكاء الاصطناعي
     ai_persona = st.selectbox(
         "🧠 اختر عقلية وخبيرة الذكاء الاصطناعي:",
         [
@@ -154,7 +154,7 @@ else:
                     audio_part = types.Part.from_bytes(data=audio_bytes, mime_type=mime_type)
                     response = client.models.generate_content(
                         model=MODEL_NAME,
-                        contents=[audio_part, f"بصفتك {ai_persona}، أجب على هذا التسجيل الصوتى بدقة واحترافية فائقة."]
+                        contents=[audio_part, f"بصفتك {ai_persona}، أجب على هذا التسجيل الصوتي بدقة واحترافية فائقة."]
                     )
                     reply = response.text
                     st.session_state.messages.append({"role": "user", "content": "🎙️ [رسالة صوتية مرسلة]"})
@@ -200,7 +200,7 @@ else:
 
     # ================= 2. استوديو الصور (Imagen 3) =================
     elif app_mode == "🎨 استوديو خلق الصور والبوسترات (Imagen 3)":
-        st.markdown("<h1 class='title-glow'>🎨 استوديو التصميم والخلق البصري</h1>", unsafe_allow_html=Task := "🎨")
+        st.markdown("<h1 class='title-glow'>🎨 استوديو التصميم والخلق البصري</h1>", unsafe_allow_html=True)
         st.markdown("صف أي صورة تخيلية، بوستر إعلاني، تصميم مستقبل لعام 2050، أو إعلان لمتجرك، وسيقوم الذكاء الاصطناعي برسمها بجودة سينمائية فائقة.")
 
         img_prompt = st.text_area(

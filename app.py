@@ -120,7 +120,7 @@ else:
                     st.session_state.messages.append({"role": "model", "content": reply})
                     st.rerun()
                 except Exception as e:
-                    st.error(fحدث خطأ في معالجة الصوت: {e}")
+                    st.error(f"حدث خطأ في معالجة الصوت: {e}")
 
         # معالجة الإدخال النصي العادي
         if user_input:

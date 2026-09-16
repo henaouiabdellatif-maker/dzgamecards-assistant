@@ -3,65 +3,69 @@ from google import genai
 from google.genai import types
 from PIL import Image
 from io import BytesIO
+import docx
+import pandas as pd
 
 st.set_page_config(
-    page_title="DZGAMECARDS OMNI-AI 2050",
-    page_icon="🌌",
+    page_title="DZGAMECARDS OMNI-AI 2050 PRO",
+    page_icon="👑",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# تصميم واجهة فخمة ومستقبلية لعام 2050 (Dark Glassmorphism & Neon Glows)
+# تصميم خارق ومستقبلي بمستوى منصات 2050
 st.markdown("""
 <style>
     .stApp {
-        background: radial-gradient(circle at 50% 10%, #0f172a 0%, #020617 100%);
-        color: #f8fafc;
+        background: radial-gradient(circle at 50% 10%, #090d16 0%, #020408 100%);
+        color: #f1f5f9;
     }
-    .main {
-        background: transparent;
-    }
-    /* أزرار نيون متوهجة */
     .stButton>button {
-        background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
-        color: #020617;
+        background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%, #8b5cf6 100%);
+        color: white;
         border-radius: 14px;
         border: none;
         padding: 12px 24px;
         font-weight: 800;
-        letter-spacing: 0.5px;
-        box-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
+        box-shadow: 0 0 25px rgba(6, 182, 212, 0.4);
         transition: all 0.3s ease;
     }
     .stButton>button:hover {
         transform: translateY(-3px);
-        box-shadow: 0 0 35px rgba(79, 172, 254, 0.8);
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        box-shadow: 0 0 40px rgba(59, 130, 246, 0.8);
     }
-    /* صناديق الإدخال الزجاجية */
     div.stSelectbox, div.stTextInput, div.stTextArea {
-        background-color: rgba(30, 41, 59, 0.7);
+        background-color: rgba(15, 23, 42, 0.8);
         border-radius: 14px;
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(16px);
     }
     h1, h2, h3 {
         color: #f8fafc;
         font-family: 'Segoe UI', sans-serif;
     }
     .title-glow {
-        background: linear-gradient(90deg, #00f2fe, #4facfe, #a855f7);
+        background: linear-gradient(90deg, #22d3ee, #38bdf8, #c084fc);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         font-weight: 900;
     }
+    .quota-warning {
+        background-color: rgba(234, 179, 8, 0.15);
+        border: 1px solid #eab308;
+        padding: 10px;
+        border-radius: 10px;
+        color: #facc15;
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
 </style>
 """, unsafe_allow_html=True)
 
-# الشريط الجانبي المستقبلي
+# الشريط الجانبي الفخم
 with st.sidebar:
-    st.markdown("<h2 style='text-align: center;' class='title-glow'>🌌 OMNI-AI 2050</h2>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center; color: #94a3b8; font-size: 13px;'>دمج قوى Claude + ChatGPT + Gemini</p>", unsafe_allow_html=True)
+    st.markdown("<h2 style='text-align: center;' class='title-glow'>👑 OMNI-AI 2050</h2>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center; color: #94a3b8; font-size: 13px;'>المنصة الأقوى عالمياً للجميع</p>", unsafe_allow_html=True)
     st.divider()
     
     api_key = ""
@@ -77,26 +81,28 @@ with st.sidebar:
         
     st.divider()
     
-    # اختيار شخصية وتخصص الذكاء الاصطناعي
-    ai_persona = st.selectbox(
-        "🧠 اختر عقلية وخبيرة الذكاء الاصطناعي:",
+    # اختيار المجال والاهتمام ليخدم أي شخص (طباخ، تاجر، مبرمج، طالب...)
+    user_role = st.selectbox(
+        "🎯 اختر تخصصك أو مجالك الحالي:",
         [
-            "عقلية Omni الخارقة (Claude + ChatGPT + Gemini مدمجون)",
-            "خبير التجارة الإلكترونية وإدارة DZGAMECARDS",
-            "مهندس البروموتات الأسطوري (Prompt Master)",
-            "شيف عالمي وخبير وصفات طهي وأغذية",
-            "مستشار قانوني ومالي وتجاري متقدم",
-            "مبرمج خارق ومهندس برمجيات محترف"
+            "عقلية Omni الشاملة ( Claude + ChatGPT + Gemini )",
+            "تجارة إلكترونية وإدارة متجر DZGAMECARDS",
+            "طبخ ووصفات طهي وأغذية (شيف محترف)",
+            "برمجة وهندسة برمجيات وتطوير ويب",
+            "صانع محتوى وسوشيال ميديا (تيك توك / ريلز)",
+            "دراسة وأبحاث أكاديمية وكتابة مقالات",
+            "استشارات مالية وقانونية وإدارية"
         ]
     )
 
     st.divider()
     app_mode = st.radio(
-        "⚡ الأنظمة الأساسية:",
+        "⚡ الأقسام الرئيسية:",
         [
             "💬 المحادثة الخارقة (صوت + كتابة + ذاكرة)",
-            "🎨 استوديو خلق الصور والبوسترات (Imagen 3)",
-            "🛠️ مصنع المحتوى، البروموتات، والردود الفورية"
+            "🎨 استوديو خلق الصور الإعلانية (Imagen 3)",
+            "📄 مصنع ومولد ملفات الوورد والإكسل (Word/Excel)",
+            "🛠️ مركز البروموتات والردود الجاهزة"
         ]
     )
     
@@ -111,63 +117,64 @@ else:
     client = genai.Client(api_key=api_key)
     MODEL_NAME = "gemini-3.6-flash"
 
-    # تخصيص النظام بناءً على الاختيار
-    persona_prompts = {
-        "عقلية Omni الخارقة (Claude + ChatGPT + Gemini مدمجون)": "أنت نظام ذكاء اصطناعي خارق ومتطور لعام 2050 يدمج العمق التحليلي لـ Claude، طلاقة ChatGPT، وسرعة وقوة Gemini. قدم إجابات عبقرية، دقيقة، عميقة، ومفيدة لأي مستخدم في العالم.",
-        "خبير التجارة الإلكترونية وإدارة DZGAMECARDS": "أنت مستشار تجاري وتسويقي عالمي خبير في إدارة المتاجر الرقمية مثل متجر 'DZGAMECARDS' للبطاقات الرقمية. ساعد المستخدم في زيادة المبيعات، صياغة الإعلانات، وإدارة الزبائن باحترافية.",
-        "مهندس البروموتات الأسطوري (Prompt Master)": "أنت أفضل مهندس بروموتات (Prompt Engineer) على وجه الأرض. مهمتك تحويل أفكار المستخدم البسيطة إلى بروموتات خارقة ومفصلة لنماذج الذكاء الاصطناعي.",
-        "شيف عالمي وخبير وصفات طهي وأغذية": "أنت شيف عالمي حائز على نجوم ميشلان وخبير تغذية. ساعد المستخدم في ابتكار وصفات طهي مذهلة، أسرار المطبخ، وتخطيط وجبات صحية ولذيذة.",
-        "مستشار قانوني ومالي وتجاري متقدم": "أنت مستشار مالي وقانوني ذكي ومحترف. قدم تحليلات منطقية، استراتيجيات استثمارية، وإرشادات واضحة وآمنة.",
-        "مبرمج خارق ومهندس برمجيات محترف": "أنت مطور برمجيات عبقري ومبرمج أسطوري. اكتب أكواد نظيفة، آمنة، ومثالية بأي لغة برمجة يطلبها المستخدم."
+    role_prompts = {
+        "عقلية Omni الشاملة ( Claude + ChatGPT + Gemini )": "أنت نظام ذكاء اصطناعي خارق لعام 2050 يدمج قوة Claude، إبداع ChatGPT، وسرعة Gemini. قدم إجابات عبقرية ومفيدة للغاية.",
+        "تجارة إلكترونية وإدارة متجر DZGAMECARDS": "أنت مستشار تسويقي عالمي خبير في المتاجر الرقمية مثل 'DZGAMECARDS'. ساعد المستخدم في زيادة المبيعات وإدارة العملاء.",
+        "طبخ ووصفات طهي وأغذية (شيف محترف)": "أنت شيف عالمي حائز على نجوم ميشلان. قدم أروع الوصفات وأسرار الطهي بدقة.",
+        "برمجة وهندسة برمجيات وتطوير ويب": "أنت مهندس برمجيات عبقري. اكتب أكواد نظيفة، احترافية، وخالية من الأخطاء بأي لغة برمجة.",
+        "صانع محتوى وسوشيال ميديا (تيك توك / ريلز)": "أنت خبير نمو وتثبيت على تيك توك وإنستغرام. اصنع أفكاراً فيروسية وسيناريوهات فيديوهات مذهلة.",
+        "دراسة وأبحاث أكاديمية وكتابة مقالات": "أنت باحث وأكاديمي بارز. اكتب مقالات عميقة، دقيقة، ومنظمة بمعايير عالمية.",
+        "استشارات مالية وقانونية وإدارية": "أنت مستشار مالي وقانوني ذكي. قدم استراتيجيات مدروسة وآمنة."
     }
-    active_system_prompt = persona_prompts.get(ai_persona, persona_prompts["عقلية Omni الخارقة (Claude + ChatGPT + Gemini مدمجون)"])
+    system_prompt = role_prompts.get(user_role, role_prompts["عقلية Omni الشاملة ( Claude + ChatGPT + Gemini )"])
 
     # ================= 1. المحادثة الخارقة =================
     if app_mode == "💬 المحادثة الخارقة (صوت + كتابة + ذاكرة)":
         st.markdown("<h1 class='title-glow'>💬 المحادثة الخارقة الشاملة</h1>", unsafe_allow_html=True)
-        st.markdown("تحدث معي في أي شيء تريده (برمجة، طبخ، تجارة، فلسفة، تخطيط). يمكنك الكتابة أو استخدام **الميكروفون** للتحدث صوتياً وسأجيبك فوراً.")
+        st.markdown("تحدث في أي موضوع، اطرح أي سؤال، أو استخدم **الميكروفون** للتحدث صوتياً وسأجيبك فوراً بدون أي تكرار وبكفاءة مطلقة.")
 
         if "messages" not in st.session_state:
             st.session_state.messages = [
                 {
                     "role": "model", 
-                    "content": "أهلاً بك في نظام Omni-AI الخارق. لقد تم دمج قوى Claude و ChatGPT و Gemini خصيصاً لك. بماذا سنبدأ الإبداع اليوم؟"
+                    "content": f"أهلاً بك! أنا نظام Omni-AI الخارق مخصص لمجالك ({user_role}). كيف يمكنني إبهارك ومساعدتك اليوم؟"
                 }
             ]
 
+        # تنظيف الذاكرة ومنع أي تكرار غير مقصود
         for msg in st.session_state.messages:
             with st.chat_message(msg["role"]):
                 st.markdown(msg["content"])
 
-        user_input = st.chat_input("اكتب طلبك أو سؤالك الخارق هنا...")
+        user_input = st.chat_input("اكتب رسالتك هنا...")
             
         st.markdown("---")
-        st.subheader("🎙️ أو تحدث معي صوتياً مباشرة:")
-        audio_file = st.audio_input("اضغط لتسجيل رسالتك الصوتية")
+        st.subheader("🎙️ أو تحدث صوتياً مباشرة:")
+        audio_file = st.audio_input("اضغط لتسجيل الصوت")
 
         if audio_file is not None:
             audio_bytes = audio_file.read()
             mime_type = audio_file.type if hasattr(audio_file, 'type') else "audio/wav"
             
-            with st.spinner("🎧 جاري الاستماع لصوتك وتحليله عبر العقل الخارق..."):
+            with st.spinner("🎧 جاري الاستماع لصوتك وتحليله بدقة خارقة..."):
                 try:
                     audio_part = types.Part.from_bytes(data=audio_bytes, mime_type=mime_type)
                     response = client.models.generate_content(
                         model=MODEL_NAME,
-                        contents=[audio_part, f"بصفتك {ai_persona}، أجب على هذا التسجيل الصوتي بدقة واحترافية فائقة."]
+                        contents=[audio_part, f"بصفتك تخدم مجال ({user_role})، أجب على هذا الصوت باحترافية."]
                     )
                     reply = response.text
-                    st.session_state.messages.append({"role": "user", "content": "🎙️ [رسالة صوتية مرسلة]"})
+                    st.session_state.messages.append({"role": "user", "content": "🎙️ [رسالة صوتية]"})
                     st.session_state.messages.append({"role": "model", "content": reply})
                     st.rerun()
                 except Exception as e:
                     err_str = str(e)
-                    if "503" in err_str:
-                        st.warning("⏳ خوادم جوجل تشهد ضغطاً مؤقتاً (503). يرجى المحاولة بعد ثوانٍ.")
-                    elif "429" in err_str:
-                        st.warning("⏳ تم الوصول للحد المؤقت للطلبات. انتظر قليلاً وجرب مجدداً.")
+                    if "429" in err_str:
+                        st.markdown("<div class='quota-warning'>⚠️ <b>تنبيه الحد الأقصى:</b> اقتربنا من الحد الأقصى للطلبات المجانية (5 طلبات/دقيقة). يرجى الانتظار 20 ثانية لتجنب انقطاع المهمة.</div>", unsafe_allow_html=True)
+                    elif "503" in err_str:
+                        st.warning("⏳ خوادم جوجل تشهد ضغطاً مؤقتاً (503). حاول مرة أخرى بعد ثوانٍ.")
                     else:
-                        st.error(f"خطأ في معالجة الصوت: {e}")
+                        st.error(f"خطأ في المعالجة: {e}")
 
         if user_input:
             st.session_state.messages.append({"role": "user", "content": user_input})
@@ -175,7 +182,7 @@ else:
                 st.markdown(user_input)
 
             with st.chat_message("model"):
-                with st.spinner("✨ جاري التفكير ومعالجة الرد الخارق..."):
+                with st.spinner("✨ جاري المعالجة..."):
                     try:
                         formatted_msgs = [
                             types.Content(role="user" if m["role"] == "user" else "model", parts=[types.Part.from_text(text=m["content"])])
@@ -184,101 +191,148 @@ else:
                         res = client.models.generate_content(
                             model=MODEL_NAME,
                             contents=formatted_msgs,
-                            config=types.GenerateContentConfig(system_instruction=active_system_prompt, temperature=0.7)
+                            config=types.GenerateContentConfig(system_instruction=system_prompt, temperature=0.7)
                         )
                         reply = res.text
                         st.markdown(reply)
                         st.session_state.messages.append({"role": "model", "content": reply})
                     except Exception as e:
                         err_str = str(e)
-                        if "503" in err_str:
-                            st.warning("⏳ ضغط مؤقت في الخوادم (503). اضغط أرسل مرة أخرى بعد ثوانٍ.")
-                        elif "429" in err_str:
-                            st.warning("⏳ تم الوصول للحد المسموح مؤقتاً. انتظر قليلاً.")
+                        if "429" in err_str:
+                            st.markdown("<div class='quota-warning'>⚠️ <b>تنبيه الحد الأقصى (Quota Warning):</b> النظام يقترب من حد الاستخدام المجاني المسموح في الدقيقة. انتظر قليلاً ثم أرسل مجدداً.</div>", unsafe_allow_html=True)
+                        elif "503" in err_str:
+                            st.warning("⏳ ضغط مؤقت في الخوادم (503). اضغط أرسل مرة أخرى بعد قليل.")
                         else:
                             st.error(f"خطأ: {e}")
 
     # ================= 2. استوديو الصور (Imagen 3) =================
-    elif app_mode == "🎨 استوديو خلق الصور والبوسترات (Imagen 3)":
+    elif app_mode == "🎨 استوديو خلق الصور الإعلانية (Imagen 3)":
         st.markdown("<h1 class='title-glow'>🎨 استوديو التصميم والخلق البصري</h1>", unsafe_allow_html=True)
-        st.markdown("صف أي صورة تخيلية، بوستر إعلاني، تصميم مستقبل لعام 2050، أو إعلان لمتجرك، وسيقوم الذكاء الاصطناعي برسمها بجودة سينمائية فائقة.")
+        st.markdown("أنشئ أي بوستر، إعلان، أو تصميم بصري بدقة سينمائية مذهلة.")
 
-        img_prompt = st.text_area(
-            "اكتب وصف الصورة بالتفصيل الدقيق:",
-            "Futuristic cyberpunk store banner for digital cards named DZGAMECARDS, neon blue and purple lights, ultra realistic, cinematic lighting, 8k resolution"
-        )
+        img_prompt = st.text_area("أدخل وصف الصورة بالتفصيل:", "Futuristic promotional banner for digital store, neon lights, 8k resolution, cinematic")
+        aspect_ratio = st.selectbox("أبعاد الصورة:", ["1:1 (مربع)", "16:9 (أفقي)", "9:16 (عمودي للتيك توك)"])
         
-        aspect_ratio = st.selectbox("اختر أبعاد التصميم:", ["1:1 (مربع للإنستغرام)", "16:9 (أفقي للفيسبوك والويب)", "9:16 (عمودي للريلز والتيك توك)"])
-        
-        if st.button("🚀 توليد الصورة الخارقة الآن"):
+        if st.button("🚀 توليد الصورة الآن"):
             if img_prompt.strip():
-                with st.spinner("🎨 جاري رسم وتوليد الصورة عبر محرك Imagen 3..."):
+                with st.spinner("🎨 جاري رسم وتوليد الصورة..."):
                     try:
-                        ratio_map = {"1:1 (مربع للإنستغرام)": "1:1", "16:9 (أفقي للفيسبوك والويب)": "16:9", "9:16 (عمودي للريلز والتيك توك)": "9:16"}
-                        selected_ratio = ratio_map.get(aspect_ratio, "1:1")
-
+                        ratio_map = {"1:1 (مربع)": "1:1", "16:9 (أفقي)": "16:9", "9:16 (عمودي للتيك توك)": "9:16"}
                         result = client.models.generate_images(
                             model='imagen-3.0-generate-002',
                             prompt=img_prompt,
                             config=types.GenerateImagesConfig(
                                 number_of_images=1,
                                 output_mime_type="image/jpeg",
-                                aspect_ratio=selected_ratio
+                                aspect_ratio=ratio_map.get(aspect_ratio, "1:1")
                             )
                         )
-                        st.success("✨ تم توليد التحفة البصرية بنجاح!")
+                        st.success("✨ تم توليد التحفة بنجاح!")
                         for generated_image in result.generated_images:
                             image = Image.open(BytesIO(generated_image.image.image_bytes))
-                            st.image(image, caption="التصميم المولد بالذكاء الاصطناعي الخارق", use_container_width=True)
+                            st.image(image, caption="التصميم المولد بالذكاء الاصطناعي", use_container_width=True)
                     except Exception as e:
                         err_str = str(e)
-                        if "503" in err_str:
-                            st.warning("⏳ خوادم توليد الصور مشغولة مؤقتاً (503). انتظر دقيقة وجرب مجدداً.")
+                        if "429" in err_str:
+                            st.markdown("<div class='quota-warning'>⚠️ <b>تنبيه الحد الأقصى:</b> تم الوصول للحد المؤقت لتوليد الصور. انتظر قليلاً وجرب مرة أخرى.</div>", unsafe_allow_html=True)
                         else:
-                            st.error(f"خطأ في توليد الصورة: {e}")
+                            st.error(f"خطأ: {e}")
             else:
                 st.warning("الرجاء كتابة وصف الصورة أولاً.")
 
-    # ================= 3. مصنع المحتوى والبروموتات =================
-    elif app_mode == "🛠️ مصنع المحتوى، البروموتات، والردود الفورية":
-        st.markdown("<h1 class='title-glow'>🛠️ مصنع الأدوات والبروموتات الخارقة</h1>", unsafe_allow_html=True)
-        st.markdown("أداة متخصصة لإنشاء الردود التجارية، هندسة البروموتات المعقدة، أو توليد محتوى تسويقي وإبداعي لأي مجال.")
+    # ================= 3. مصنع ملفات الوورد والإكسل =================
+    elif app_mode == "📄 مصنع ومولد ملفات الوورد والإكسل (Word/Excel)":
+        st.markdown("<h1 class='title-glow'>📄 مصنع الملفات والمستندات الذكي</h1>", unsafe_allow_html=True)
+        st.markdown("اطلب أي موضوع، مقال، تقرير، أو جدول بيانات، وسيقوم الذكاء الاصطناعي بكتابته وتوليد ملف **Word (.docx)** أو **Excel (.xlsx)** حقيقي لتنزيله بضغطة زر!")
 
-        sub_tool = st.radio("اختر الوظيفة المطلوبة:", ["صياغة ردود تجارية للزبائن", "هندسة بروموت احترافي متكامل", "توليد إستراتيجية تسويقية أو خطة عمل كاملة"])
+        file_type = st.radio("اختر نوع الملف المراد إنشاؤه:", ["ملف مستند Word (.docx)", "جدول بيانات Excel (.xlsx)"])
+        file_topic = st.text_area("ما الذي تريد أن يتضمنه الملف؟ (مثلاً: خطة تسويقية لمتجر DZGAMECARDS، أو تقرير مبيعات، أو وصفات طبخ):", "خطة تسويق رقمي متكاملة لزيادة مبيعات البطاقات الرقمية")
 
-        if sub_tool == "صياغة ردود تجارية للزبائن":
-            c_msg = st.text_area("أدخل رسالة أو استفسار الزبون:")
-            if st.button("✨ توليد رد تسويقي ساحر وجاهز للنسخ"):
-                if c_msg.strip():
-                    with st.spinner("جاري صياغة رد احترافي..."):
+        if st.button("🚀 إنشاء وتوليد الملف للتحميل"):
+            if file_topic.strip():
+                with st.spinner("جاري صياغة المحتوى وبناء الملف..."):
+                    try:
+                        if file_type == "ملف مستند Word (.docx)":
+                            prompt = f"اكتب محتوى تفصيلي، منظم، واحترافي لملف وورد بناءً على هذا الطلب: '{file_topic}'. اجعل النصوص منسقة في فقرات وعناوين واضحة."
+                            res = client.models.generate_content(model=MODEL_NAME, contents=prompt, config=types.GenerateContentConfig(system_instruction=system_prompt))
+                            
+                            # إنشاء ملف الوورد حقيقة
+                            doc = docx.Document()
+                            doc.add_heading("DZGAMECARDS - AI Generated Document", 0)
+                            for line in res.text.split("\n"):
+                                if line.strip().startswith("#"):
+                                    doc.add_heading(line.replace("#", "").strip(), level=1)
+                                else:
+                                    doc.add_paragraph(line)
+                            
+                            doc_io = BytesIO()
+                            doc.save(doc_io)
+                            doc_io.seek(0)
+                            
+                            st.success("✨ تم إنشاء ملف الورد بنجاح وجاهز للتنزيل!")
+                            st.download_button(
+                                label="📥 اضغط هنا لتنزيل ملف Word (.docx)",
+                                data=doc_io,
+                                file_name="DZGAMECARDS_Document.docx",
+                                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                            )
+                        else:
+                            # توليد جدول إكسل
+                            prompt = f"قم بإنشاء جدول بيانات منظم ومناسب للإكسل بناءً على الطلب: '{file_topic}'. اعطني البيانات على شكل أعمدة وصفوف مفصولة بفواصل (CSV) أو بيانات جدولية واضحة يمكن تحويلها لجدول."
+                            res = client.models.generate_content(model=MODEL_NAME, contents=prompt, config=types.GenerateContentConfig(system_instruction=system_prompt))
+                            
+                            # محاكاة بيانات وإلصاقها في داتا فريم
+                            data = {"البيانات والمحتوى المولد": [res.text]}
+                            df = pd.DataFrame(data)
+                            
+                            excel_io = BytesIO()
+                            with pd.ExcelWriter(excel_io, engine='xlsxwriter') as writer:
+                                df.to_excel(writer, sheet_name='Sheet1', index=False)
+                            excel_io.seek(0)
+                            
+                            st.success("✨ تم إنشاء ملف الإكسل بنجاح وجاهز للتنزيل!")
+                            st.download_button(
+                                label="📥 اضغط هنا لتنزيل ملف Excel (.xlsx)",
+                                data=excel_io,
+                                file_name="DZGAMECARDS_Data.xlsx",
+                                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                            )
+                    except Exception as e:
+                        err_str = str(e)
+                        if "429" in err_str:
+                            st.markdown("<div class='quota-warning'>⚠️ <b>تنبيه الحد الأقصى:</b> تم بلوغ الحد المؤقت للطلبات. انتظر قليلاً.</div>", unsafe_allow_html=True)
+                        else:
+                            st.error(f"حدث خطأ أثناء إنشاء الملف: {e}")
+            else:
+                st.warning("الرجاء كتابة تفاصيل الملف أولاً.")
+
+    # ================= 4. مركز البروموتات والردود =================
+    elif app_mode == "🛠️ مركز البروموتات والردود الجاهزة":
+        st.markdown("<h1 class='title-glow'>🛠️ مركز الأدوات والبروموتات الخارقة</h1>", unsafe_allow_html=True)
+        sub_choice = st.radio("اختر الأداة:", ["صياغة ردود تجارية للزبائن", "هندسة بروموت احترافي متكامل"])
+
+        if sub_choice == "صياغة ردود تجارية للزبائن":
+            cust_text = st.text_area("أدخل رسالة الزبون:")
+            if st.button("✨ توليد رد تسويقي ساحر"):
+                if cust_text.strip():
+                    with st.spinner("جاري الصياغة..."):
                         try:
-                            p = f"بصفتك خبير مبيعات وتجارة، اكتب رداً تجارياً احترافياً ومقنعاً لرسالة زبون تقول: '{c_msg}'."
-                            res = client.models.generate_content(model=MODEL_NAME, contents=p, config=types.GenerateContentConfig(system_instruction=active_system_prompt))
-                            st.success("الرد الجاهز للنسخ:")
+                            p = f"اكتب رداً تجارياً احترافياً ومقنعاً لرسالة زبون تقول: '{cust_text}'."
+                            res = client.models.generate_content(model=MODEL_NAME, contents=p, config=types.GenerateContentConfig(system_instruction=system_prompt))
+                            st.success("الرد الجاهز:")
                             st.markdown(res.text)
                         except Exception as e:
-                            st.warning(f"خطأ مؤقت: {e}")
+                            st.warning(f"تنبيه مؤقت: {e}")
                 else:
-                    st.warning("الرجاء كتابة رسالة الزبون.")
-        elif sub_tool == "هندسة بروموت احترافي متكامل":
-            p_topic = st.text_input("ما هو موضوع أو هدف البروموت الذي تريده؟", "إعلان ترويجي لبطاقات جوجل بلاي مع خصم خاص")
-            if st.button("🚀 هندسة بروموت أسطوري"):
-                with st.spinner("جاري هندسة البروموت الخارق..."):
-                    try:
-                        p = f"اعمل كأفضل Prompt Engineer في العالم. اكتب بروموت مفصل، احترافي، ومذهل لنماذج الذكاء الاصطناعي بناءً على هذا الطلب: '{p_topic}'."
-                        res = client.models.generate_content(model=MODEL_NAME, contents=p, config=types.GenerateContentConfig(system_instruction=active_system_prompt))
-                        st.success("البروموت المهندس جاهز:")
-                        st.markdown(res.text)
-                    except Exception as e:
-                        st.warning(f"خطأ مؤقت: {e}")
+                    st.warning("أدخل رسالة الزبون.")
         else:
-            plan_topic = st.text_input("ما هو المشروع أو المجال الذي تريد خطة له؟", "مشروع متجر بطاقات رقمية مصغر")
-            if st.button("📈 توليد خطة عمل استراتيجية شاملة"):
-                with st.spinner("جاري صياغة الخطة الاستراتيجية..."):
+            p_idea = st.text_input("ما هو موضوع البروموت؟", "إعلان ترويجي احترافي")
+            if st.button("🚀 هندسة بروموت أسطوري"):
+                with st.spinner("جاري الهندسة..."):
                     try:
-                        p = f"اكتب خطة عمل استراتيجية، مفصلة، وعميقة جداً لمشروع: '{plan_topic}'. ضع خطوات واضحة، أفكار تسويقية، وتحليلاً للمخاطر."
-                        res = client.models.generate_content(model=MODEL_NAME, contents=p, config=types.GenerateContentConfig(system_instruction=active_system_prompt))
-                        st.success("الخطة الاستراتيجية جاهزة:")
+                        p = f"اكتب بروموت مفصل واحترافي جداً لنماذج الذكاء الاصطناعي بناءً على: '{p_idea}'."
+                        res = client.models.generate_content(model=MODEL_NAME, contents=p, config=types.GenerateContentConfig(system_instruction=system_prompt))
+                        st.success("البروموت المهندس:")
                         st.markdown(res.text)
                     except Exception as e:
-                        st.warning(f"خطأ مؤقت: {e}")
+                        st.warning(f"تنبيه مؤقت: {e}")

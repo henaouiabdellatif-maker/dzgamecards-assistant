@@ -5,6 +5,7 @@ from PIL import Image
 from io import BytesIO
 import docx
 import pandas as pd
+import uuid
 
 st.set_page_config(
     page_title="DZGAMECARDS OMNI-AI 2050 PRO",
@@ -25,14 +26,14 @@ st.markdown("""
         color: white;
         border-radius: 14px;
         border: none;
-        padding: 12px 24px;
+        padding: 10px 20px;
         font-weight: 800;
-        box-shadow: 0 0 25px rgba(6, 182, 212, 0.4);
+        box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
         transition: all 0.3s ease;
     }
     .stButton>button:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 0 40px rgba(59, 130, 246, 0.8);
+        transform: translateY(-2px);
+        box-shadow: 0 0 30px rgba(59, 130, 246, 0.7);
     }
     div.stSelectbox, div.stTextInput, div.stTextArea {
         background-color: rgba(15, 23, 42, 0.8);
@@ -62,7 +63,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# الشريط الجانبي الفخم
+# الشريط الجانبي الفخم وإدارة المحادثات السابقة
 with st.sidebar:
     st.markdown("<h2 style='text-align: center;' class='title-glow'>👑 OMNI-AI 2050</h2>", unsafe_allow_html=True)
     st.markdown("<p style='text-align: center; color: #94a3b8; font-size: 13px;'>المنصة الأقوى عالمياً للجميع</p>", unsafe_allow_html=True)
@@ -79,6 +80,55 @@ with st.sidebar:
     else:
         st.success("النواة الخارقة متصلة بنجاح 🔒")
         
+    st.divider()
+    
+    # 🗂️ نظام إدارة المحادثات السابقة (رؤية + تبديل + حذف)
+    st.markdown("### 🗂️ سجل المحادثات السابقة")
+    
+    if "sessions" not in st.session_state:
+        init_id = str(uuid.uuid4())[:8]
+        st.session_state.sessions = {
+            init_id: {
+                "title": "محادثة رئيسية 1",
+                "messages": [{"role": "model", "content": "أهلاً بك في نظام Omni-AI الخارق. كيف يمكنني إبهارك ومساعدتك اليوم؟"}]
+            }
+        }
+        st.session_state.active_session = init_id
+
+    # عرض قائمة المحادثات السابقة
+    session_ids = list(st.session_state.sessions.keys())
+    session_titles = [st.session_state.sessions[sid]["title"] for sid in session_ids]
+    
+    try:
+        active_idx = session_ids.index(st.session_state.active_session)
+    except ValueError:
+        active_idx = 0
+
+    selected_title = st.selectbox("اختر محادثة سابقة:", session_titles, index=active_idx, key="session_selector")
+    selected_id = session_ids[session_titles.index(selected_title)]
+    
+    if selected_id != st.session_state.active_session:
+        st.session_state.active_session = selected_id
+        st.rerun()
+
+    # أزرار محادثة جديدة وحذف المحادثة الحالية
+    col_b1, col_b2 = st.columns(2)
+    with col_b1:
+        if st.button("➕ جديدة"):
+            new_id = str(uuid.uuid4())[:8]
+            new_title = f"محادثة {len(st.session_state.sessions) + 1}"
+            st.session_state.sessions[new_id] = {
+                "title": new_title,
+                "messages": [{"role": "model", "content": "أهلاً بك في محادثة جديدة. بماذا نبدأ الإبداع؟"}]
+            }
+            st.session_state.active_session = new_id
+            st.rerun()
+    with col_b2:
+        if st.button("🗑️ حذف الحالية") and len(st.session_state.sessions) > 1:
+            del st.session_state.sessions[st.session_state.active_session]
+            st.session_state.active_session = list(st.session_state.sessions.keys())[0]
+            st.rerun()
+
     st.divider()
     
     user_role = st.selectbox(
@@ -104,11 +154,6 @@ with st.sidebar:
             "🛠️ مركز البروموتات والردود الجاهزة"
         ]
     )
-    
-    st.divider()
-    if st.button("🗑️ فرمتة الذاكرة وبدء محادثة جديدة"):
-        st.session_state.messages = []
-        st.rerun()
 
 if not api_key:
     st.warning("⚠️ الرجاء إدخال مفتاح الـ API في الشريط الجانبي لتفعيل طاقة الذكاء الاصطناعي الخارق.")
@@ -127,20 +172,15 @@ else:
     }
     system_prompt = role_prompts.get(user_role, role_prompts["عقلية Omni الشاملة ( Claude + ChatGPT + Gemini )"])
 
+    # جلب الرسائل الخاصة بالمحادثة النشطة حالياً
+    active_messages = st.session_state.sessions[st.session_state.active_session]["messages"]
+
     # ================= 1. المحادثة الخارقة =================
     if app_mode == "💬 المحادثة الخارقة (صوت + كتابة + ذاكرة)":
         st.markdown("<h1 class='title-glow'>💬 المحادثة الخارقة الشاملة</h1>", unsafe_allow_html=True)
         st.markdown("تحدث في أي موضوع، اطرح أي سؤال، أو استخدم **الميكروفون** للتحدث صوتياً وسأجيبك فوراً بدون أي تكرار وبكفاءة مطلقة.")
 
-        if "messages" not in st.session_state:
-            st.session_state.messages = [
-                {
-                    "role": "model", 
-                    "content": f"أهلاً بك! أنا نظام Omni-AI الخارق مخصص لمجالك ({user_role}). كيف يمكنني إبهارك ومساعدتك اليوم؟"
-                }
-            ]
-
-        for msg in st.session_state.messages:
+        for msg in active_messages:
             with st.chat_message(msg["role"]):
                 st.markdown(msg["content"])
 
@@ -162,8 +202,8 @@ else:
                         contents=[audio_part, f"بصفتك تخدم مجال ({user_role})، أجب على هذا الصوت باحترافية."]
                     )
                     reply = response.text
-                    st.session_state.messages.append({"role": "user", "content": "🎙️ [رسالة صوتية]"})
-                    st.session_state.messages.append({"role": "model", "content": reply})
+                    active_messages.append({"role": "user", "content": "🎙️ [رسالة صوتية]"})
+                    active_messages.append({"role": "model", "content": reply})
                     st.rerun()
                 except Exception as e:
                     err_str = str(e)
@@ -175,7 +215,7 @@ else:
                         st.error(f"خطأ: {e}")
 
         if user_input:
-            st.session_state.messages.append({"role": "user", "content": user_input})
+            active_messages.append({"role": "user", "content": user_input})
             with st.chat_message("user"):
                 st.markdown(user_input)
 
@@ -184,7 +224,7 @@ else:
                     try:
                         formatted_msgs = [
                             types.Content(role="user" if m["role"] == "user" else "model", parts=[types.Part.from_text(text=m["content"])])
-                            for m in st.session_state.messages
+                            for m in active_messages
                         ]
                         res = client.models.generate_content(
                             model=MODEL_NAME,
@@ -193,7 +233,7 @@ else:
                         )
                         reply = res.text
                         st.markdown(reply)
-                        st.session_state.messages.append({"role": "model", "content": reply})
+                        active_messages.append({"role": "model", "content": reply})
                     except Exception as e:
                         err_str = str(e)
                         if "429" in err_str:

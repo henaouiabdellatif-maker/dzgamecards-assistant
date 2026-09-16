@@ -1,43 +1,40 @@
 import streamlit as st
+import google.generativeai as genai
 
 st.set_page_config(page_title="DZGAMECARDS AI Assistant", page_icon="⚡", layout="centered")
 
 st.title("⚡ DZGAMECARDS AI Assistant")
-st.markdown("مرحباً بك في مساعدك الذكي لإدارة صفحة متجرك وتوليد البروموتات ومنشورات السوشيال ميديا.")
+st.markdown("مساعدك الذكي المتقدم لإدارة متجرك وتوليد المحتوى الحقيقي بالذكاء الاصطناعي.")
 
-# خيارات الأداة
+# الشريط الجانبي لإدخال المفتاح والخدمات
+st.sidebar.header("إعدادات الذكاء الاصطناعي")
+api_key = st.sidebar.text_input("أدخل مفتاح Gemini API Key:", type="password")
+
 option = st.sidebar.selectbox(
     "اختر الخدمة:",
-    ("إنشاء منشور ترويجي", "هندسة بروموت لـ Omini Flash", "أفكار لفيديوهات ريلز/تيك توك")
+    ("إنشاء منشور ترويجي ذكي", "هندسة بروموت لـ Omini Flash", "أفكار لفيديوهات ريلز/تيك توك مبتكرة")
 )
 
-product_name = st.text_input("اسم المنتج أو البطاقة (مثلاً: بطاقات جوجل بلاي، شحن فري فاير):", "بطاقات رقمية")
+product_name = st.text_input("اسم المنتج أو البطاقة (مثلاً: بطاقات جوجل بلاي، شحن فري فاير):", "بطاقات جوجل بلاي")
 
-if st.button("توليد المحتوى"):
-    if option == "إنشاء منشور ترويجي":
-        st.success("إليك منشور جاهز للنشر على فيسبوك وإنستغرام:")
-        st.code(f"""
-⚡ وفّر وقتك والجهد واشحن حسابك في ثوانٍ مع DZGAMECARDS!
+if st.button("توليد المحتوى بالذكاء الاصطناعي"):
+    if not api_key:
+        st.error("الرجاء إدخال مفتاح Gemini API Key في الشريط الجانبي أولاً!")
+    else:
+        try:
+            genai.configure(api_key=api_key)
+            model = genai.GenerativeModel("gemini-1.5-flash")
+            
+            with st.spinner("جاري التفكير وتوليد المحتوى لمتجرك..."):
+                if option == "إنشاء منشور ترويجي ذكي":
+                    prompt = f"اكتب منشور ترويجي جذاب واحترافي لفيسبوك وإنستغرام لمتجر بطاقات رقمية يسمى DZGAMECARDS يبيع منتج '{product_name}'. اجعل النص باللهجة أو اللغة الجذابة مع إيموجي وهاشتاغات ودعوة واضحة للشراء."
+                elif option == "هندسة بروموت لـ Omini Flash":
+                    prompt = f"اكتب بروموت احترافي ومفصل لنماذج الذكاء الاصطناعي السريعة (Flash) لتوليد أفكار تسويقية وإعلانية لمتجر DZGAMECARDS لبيع '{product_name}'."
+                else:
+                    prompt = f"اعطني 3 أفكار مبتكرة لفيديوهات قصيرة (Reels/TikTok) لمتجر DZGAMECARDS للترويج لـ '{product_name}' مع نص الفيديو والتعليق الصوتي."
 
-تحتاج إلى {product_name} بأسعار تنافسية ودعم فوري وآمن 100%؟ 🛒
-
-🔹 متوفر لدينا الآن طلباتك بكل سهولة وبأفضل الأسعار في السوق الجزائري.
-🔹 تسليم سريع ومضمون.
-
-📩 لاستفسار أو الشراء، راسل صفحتنا مباشرة عبر الرسائل الخاصة (Inbox)!
-
-#DZGAMECARDS #بطاقات_رقمية #شحن_الألعاب #الجزائر
-        """, language="markdown")
-        
-    elif option == "هندسة بروموت لـ Omini Flash":
-        st.success("البروموت الجاهز للاستخدام:")
-        st.code(f"""
-أنت خبير تسويق رقمي ومصمم محتوى لمتجر إلكتروني يسمى DZGAMECARDS. أريد منك صياغة إعلان تسويقي قوي ومؤثر لـ {product_name} يستهدف اللاعبين والمستخدمين في الجزائر، بحيث يكون النص جذاباً، مشجعاً على الشراء السريع، ويتضمن دعوة واضحة لاتخاذ إجراء (Call to Action).
-        """, language="markdown")
-        
-    elif option == "أفكار لفيديوهات ريلز/تيك توك":
-        st.success("أفكار مقترحة للفيديوهات القصيرة:")
-        st.markdown(f"""
-1. **الفكرة الأولى (المشكلة والحل):** ابدأ الفيديو بسؤال: 'تعاني من صعوبة شحن {product_name}؟' ثم اظهر شعار متجر DZGAMECARDS وكيف يتم التسليم في ثوانٍ.
-2. **الفكرة الثانية (عرض سريع):** فيديو صامت بخلفية موسيقية هادئة يوضح أسعار وتوفر {product_name} مع تعليق صوتي يوضح سرعة الخدمة.
-        """)
+                response = model.generate_content(prompt)
+                st.success("تم توليد المحتوى بنجاح:")
+                st.markdown(response.text)
+        except Exception as e:
+            st.error(f"حدث خطأ أثناء الاتصال بالذكاء الاصطناعي: {e}")

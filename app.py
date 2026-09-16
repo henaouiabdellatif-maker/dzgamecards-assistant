@@ -23,7 +23,7 @@ if st.button("توليد المحتوى بالذكاء الاصطناعي"):
     else:
         try:
             genai.configure(api_key=api_key)
-            # تم تحديث اسم الموديل ليعمل مباشرة بدون أخطاء
+            # تم تحديث اسم النموذج ليتوافق تماماً مع النظام
             model = genai.GenerativeModel("gemini-1.5-flash")
             
             with st.spinner("جاري التفكير وتوليد المحتوى لمتجرك..."):
